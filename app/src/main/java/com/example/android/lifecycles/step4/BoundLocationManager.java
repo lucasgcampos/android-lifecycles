@@ -16,19 +16,19 @@
 
 package com.example.android.lifecycles.step4;
 
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.util.Log;
 
-import android.arch.lifecycle.LifecycleObserver;
-import android.arch.lifecycle.LifecycleRegistryOwner;
-
 
 public class BoundLocationManager {
-    public static void bindLocationListenerIn(LocationActivity lifecycleOwner,
-                                              LocationListener listener, Context context) {
+
+    public static void bindLocationListenerIn(LocationActivity lifecycleOwner, LocationListener listener, Context context) {
         new BoundLocationListener(lifecycleOwner, listener, context);
     }
 
@@ -38,14 +38,14 @@ public class BoundLocationManager {
         private LocationManager mLocationManager;
         private final LocationListener mListener;
 
-        public BoundLocationListener(LocationActivity lifecycleOwner,
-                                     LocationListener listener, Context context) {
+        public BoundLocationListener(LocationActivity lifecycleOwner, LocationListener listener, Context context) {
             mContext = context;
             mListener = listener;
-            //TODO: Add lifecycle observer
+
+            lifecycleOwner.getLifecycle().addObserver(this);
         }
 
-        //TODO: Call this on resume
+        @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
         void addLocationListener() {
             // Note: Use the Fused Location Provider from Google Play Services instead.
             // https://developers.google.com/android/reference/com/google/android/gms/location/FusedLocationProviderApi
@@ -63,7 +63,7 @@ public class BoundLocationManager {
             }
         }
 
-        //TODO: Call this on pause
+        @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
         void removeLocationListener() {
             if (mLocationManager == null) {
                 return;
@@ -72,5 +72,7 @@ public class BoundLocationManager {
             mLocationManager = null;
             Log.d("BoundLocationMgr", "Listener removed");
         }
+
     }
+
 }
